@@ -1,2 +1,4 @@
 libs/*
 !libs/*.jar
+test-data/*
+!test-data/*.zip
