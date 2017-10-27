@@ -3,10 +3,10 @@ import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 
-public class ShortestAncestralPath {
+public class SAP {
 
     // constructor takes a digraph (not necessarily a DAG)
-    public ShortestAncestralPath(Digraph G) {
+    public SAP(Digraph G) {
 
     }
 
@@ -34,7 +34,7 @@ public class ShortestAncestralPath {
     public static void main(String[] args) {
         In in = new In(args[0]);
         Digraph G = new Digraph(in);
-        ShortestAncestralPath sap = new ShortestAncestralPath(G);
+        SAP sap = new SAP(G);
         while (!StdIn.isEmpty()) {
             int v = StdIn.readInt();
             int w = StdIn.readInt();
