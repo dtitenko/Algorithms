@@ -1,3 +1,5 @@
+package week1;
+
 public class WordNet {
 
     // constructor takes the name of the two input files
