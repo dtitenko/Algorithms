@@ -5,11 +5,11 @@
             "name": "Debug (Launch)",
             "type": "java",
             "request": "launch",
-            "mainClass": "ReadFile",
+            "mainClass": "week1.SAP",
             "sourcePaths": [
                 "libs"
             ],
-            "args": "test-data\\digraph-ambiguous-ancestor.txt"
+            "args": "test-data\\digraph1.txt 9 12"
         }
     ]
 }
