@@ -1,18 +1,33 @@
-package week1;
+package src;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Outcast {
 
+    private WordNet _wordnet;
+
     // constructor takes a WordNet object
     public Outcast(WordNet wordnet) {
-
+        this._wordnet = wordnet;
     }
 
     // given an array of WordNet nouns, return an outcast
     public String outcast(String[] nouns) {
-        throw new MothodNotImplementedException();
+        String bestNouns = "";
+        int bestDist = 0;
+        for (int i = 0; i < nouns.length; i++) {
+            int currentDist = 0;
+            for (int j = 0; j < nouns.length; j++) {
+                currentDist += _wordnet.distance(nouns[i], nouns[j]);
+            }
+
+            if (bestDist < currentDist) {
+                bestDist = currentDist;
+                bestNouns = nouns[i];
+            }
+        }
+        return bestNouns;
     }
 
     // see test client below

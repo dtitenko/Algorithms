@@ -1,4 +1,4 @@
-package week1;
+package src;
 
 import edu.princeton.cs.algs4.In;
 
@@ -19,13 +19,23 @@ public class SAP {
     }
 
     // length of shortest ancestral path between v and w; -1 if no such path
-    public int length(int v, int w) {
+    public int length(int v, int w) throws IndexOutOfBoundsException {
+        if (v < 0 || v >= _graph.V())
+            throw new IndexOutOfBoundsException();
+        if (w < 0 || w >= _graph.V())
+            throw new IndexOutOfBoundsException();
+
         int[] res = this.findAncestorAndDist(v, w, _graph);
         return res[1];
     }
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
-    public int ancestor(int v, int w) {
+    public int ancestor(int v, int w) throws IndexOutOfBoundsException {
+        if (v < 0 || v >= _graph.V())
+            throw new IndexOutOfBoundsException();
+        if (w < 0 || w >= _graph.V())
+            throw new IndexOutOfBoundsException();
+
         int[] res = this.findAncestorAndDist(v, w, _graph);
         return res[0];
     }
@@ -62,8 +72,8 @@ public class SAP {
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) throws IndexOutOfBoundsException {
         int dist = -1;
-        for (Integer eV : v) {
-            for (Integer eW : w) {
+        for (int eV : v) {
+            for (int eW : w) {
                 int currentDist = length(eV, eW);
                 if (currentDist > 0 && (dist < 0 || currentDist < dist))
                     dist = currentDist;
@@ -72,12 +82,11 @@ public class SAP {
         return dist;
     }
 
-    // a common ancestor that participates in shortest ancestral path; -1 if no
-    // such path
+    // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) throws IndexOutOfBoundsException {
         int dist = -1, anc = -1;
-        for (Integer eV : v) {
-            for (Integer eW : w) {
+        for (int eV : v) {
+            for (int eW : w) {
                 int currentDist = length(eV, eW);
                 if (currentDist > 0 && (dist < 0 || currentDist < dist)) {
                     dist = currentDist;
@@ -88,30 +97,30 @@ public class SAP {
         return anc;
     }
 
-    public static void main(String[] args) {
-        In in = new In(args[0]);
-        Digraph G = new Digraph(in);
-        SAP sap = new SAP(G);
-        int v = Integer.parseInt(args[1]);
-        int w = Integer.parseInt(args[2]);
-        int length = sap.length(v, w);
-        int ancestor = sap.ancestor(v, w);
-
-        StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
-    }
-
-    // do unit testing of this class
     // public static void main(String[] args) {
     //     In in = new In(args[0]);
     //     Digraph G = new Digraph(in);
     //     SAP sap = new SAP(G);
-    //     while (!StdIn.isEmpty()) {
-    //         int v = StdIn.readInt();
-    //         int w = StdIn.readInt();
-    //         int length   = sap.length(v, w);
-    //         int ancestor = sap.ancestor(v, w);
+    //     int v = Integer.parseInt(args[1]);
+    //     int w = Integer.parseInt(args[2]);
+    //     int length = sap.length(new int[] { v }, new int[] { w });
+    //     int ancestor = sap.ancestor(new int[] { v }, new int[] { w });
 
-    //         StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
-    //     }
+    //     StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
     // }
+
+    // do unit testing of this class
+    public static void main(String[] args) {
+        In in = new In(args[0]);
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        while (!StdIn.isEmpty()) {
+            int v = StdIn.readInt();
+            int w = StdIn.readInt();
+            int length   = sap.length(v, w);
+            int ancestor = sap.ancestor(v, w);
+
+            StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
+        }
+    }
 }
