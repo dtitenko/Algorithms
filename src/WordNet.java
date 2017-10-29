@@ -1,10 +1,3 @@
-package src;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -13,6 +6,7 @@ import java.util.Map;
 import java.util.Stack;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.In;
 
 public class WordNet {
 
@@ -22,7 +16,7 @@ public class WordNet {
     private int _v;
 
     // constructor takes the name of the two input files
-    public WordNet(String synsets, String hypernyms) throws NullPointerException, IllegalArgumentException, IOException {
+    public WordNet(String synsets, String hypernyms) {
         if (synsets == null || hypernyms == null) {
             throw new java.lang.NullPointerException("inputs cannot be null!");
         }
@@ -40,6 +34,9 @@ public class WordNet {
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
+        if (word == null) {
+            throw new IllegalArgumentException("word should not be null");
+        }
         return _dict.containsKey(word);
     }
 
@@ -59,8 +56,8 @@ public class WordNet {
         return _reverseDict.get(id);
     }
 
-    private void readSynsets(String synsets) throws NumberFormatException, IOException {
-        BufferedReader in = new BufferedReader(new FileReader(synsets));
+    private void readSynsets(String synsets) {
+        In in = new In(synsets);
         String line = null;
         _v = 0;
         while ((line = in.readLine()) != null) {
@@ -81,9 +78,9 @@ public class WordNet {
         in.close();
     }
 
-    private Digraph readHypernyms(String hypernyms) throws NumberFormatException, IOException {
+    private Digraph readHypernyms(String hypernyms) {
         Digraph graph = new Digraph(_v + 1);
-        BufferedReader in = new BufferedReader(new FileReader(hypernyms));
+        In in = new In(hypernyms);
         String line = null;
         while ((line = in.readLine()) != null) {
             String items[] = line.split(",");
@@ -144,10 +141,9 @@ public class WordNet {
     }
 
     // for unit testing of this class
-    public static void main(String[] args) throws IllegalArgumentException, IOException {
+    public static void main(String[] args) {
         WordNet wordnet = new WordNet(args[0], args[1]);
         int res = wordnet.distance("wolf", "fish");
         StdOut.println("distance - " + res);
     }
-
 }

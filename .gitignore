@@ -3,3 +3,5 @@ libs/*
 test-data/*
 !test-data/*.zip
 *.class
+/bin/
+src/*.zip

@@ -1,13 +1,8 @@
-package src;
-
-import edu.princeton.cs.algs4.In;
-
-import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
-import edu.princeton.cs.algs4.BreadthFirstPaths;
+import java.util.HashMap;
+import java.util.Map;
 import edu.princeton.cs.algs4.Digraph;
-import edu.princeton.cs.algs4.StdIn;
-import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.In;
 
 public class SAP {
 
@@ -15,65 +10,74 @@ public class SAP {
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
-        _graph = G;
+        this._graph = new Digraph(G);
     }
 
-    // length of shortest ancestral path between v and w; -1 if no such path
-    public int length(int v, int w) throws IndexOutOfBoundsException {
-        if (v < 0 || v >= _graph.V())
-            throw new IndexOutOfBoundsException();
-        if (w < 0 || w >= _graph.V())
-            throw new IndexOutOfBoundsException();
-
-        int[] res = this.findAncestorAndDist(v, w, _graph);
-        return res[1];
-    }
-
-    // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
-    public int ancestor(int v, int w) throws IndexOutOfBoundsException {
-        if (v < 0 || v >= _graph.V())
-            throw new IndexOutOfBoundsException();
-        if (w < 0 || w >= _graph.V())
-            throw new IndexOutOfBoundsException();
-
-        int[] res = this.findAncestorAndDist(v, w, _graph);
-        return res[0];
-    }
-
-    private int[] findAncestorAndDist(int v, int w, Digraph graph) {
-        BreadthFirstDirectedPaths wPath = new BreadthFirstDirectedPaths(graph, w);
-        int ancestor = -1;
-        int dist = -1;
-        boolean[] marked = new boolean[graph.V()];
-        int[] distTo = new int[graph.V()];
-        Queue<Integer> q = new Queue<Integer>();
-        marked[v] = true;
-        distTo[v] = 0;
-        q.enqueue(v);
-        while (!q.isEmpty()) {
-            int vi = q.dequeue();
-            for (int wi : graph.adj(vi)) {
-                if (!marked[wi]) {
-                    if (wPath.hasPathTo(wi)) {
-                        ancestor = wi;
-                        dist = distTo[vi] + 1 + wPath.distTo(wi);
-                        return new int[] { ancestor, dist };
-                    }
-                    distTo[wi] = distTo[vi] + 1;
-                    marked[wi] = true;
-                    q.enqueue(wi);
+    private Map<Integer, Integer> getAncestors(int v) {
+        Queue<Integer> vQ = new Queue<Integer>();
+        Map<Integer, Integer> vM = new HashMap<Integer, Integer>();
+        vQ.enqueue(v);
+        vM.put(v, 0);
+        while (!vQ.isEmpty()) {
+            int head = vQ.dequeue();
+            int currentDist = vM.get(head);
+            for (Integer w : _graph.adj(head)) {
+                if (!vM.containsKey(w) || vM.get(w) > currentDist + 1) {
+                    vQ.enqueue(w);
+                    vM.put(w, currentDist + 1);
                 }
             }
         }
-
-        return new int[] { ancestor, dist };
+        return vM;
     }
 
-    // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
-    public int length(Iterable<Integer> v, Iterable<Integer> w) throws IndexOutOfBoundsException {
+    // length of shortest ancestral path between v and w; -1 if no such path
+    public int length(int v, int w) {
+        if (v < 0 || v >= _graph.V())
+            throw new IndexOutOfBoundsException();
+        if (w < 0 || w >= _graph.V())
+            throw new IndexOutOfBoundsException();
+        Map<Integer, Integer> ancestorV = getAncestors(v);
+        Map<Integer, Integer> ancestorW = getAncestors(w);
         int dist = -1;
-        for (int eV : v) {
-            for (int eW : w) {
+        for (Integer key : ancestorV.keySet()) {
+            if (ancestorW.containsKey(key)) {
+                int currentDist = ancestorW.get(key) + ancestorV.get(key);
+                if (dist < 0 || currentDist < dist)
+                    dist = currentDist;
+            }
+        }
+        return dist;
+    }
+
+    // a common ancestor of v and w that participates in a shortest ancestral
+    // path; -1 if no such path
+    public int ancestor(int v, int w) {
+        Map<Integer, Integer> ancestorV = getAncestors(v);
+        Map<Integer, Integer> ancestorW = getAncestors(w);
+        if (v < 0 || v >= _graph.V())
+            throw new IndexOutOfBoundsException();
+        if (w < 0 || w >= _graph.V())
+            throw new IndexOutOfBoundsException();
+        int dist = -1, anc = -1;
+        for (Integer key : ancestorV.keySet()) {
+            if (ancestorW.containsKey(key)) {
+                int currentDist = ancestorW.get(key) + ancestorV.get(key);
+                if (dist < 0 || currentDist < dist) {
+                    dist = currentDist;
+                    anc = key;
+                }
+            }
+        }
+        return anc;
+    }
+
+    // length of shortest ancestral path between any vertex in v and any vertex
+    // in w; -1 if no such path
+    public int length(Iterable<Integer> v, Iterable<Integer> w) {
+        int dist = -1;
+        for (Integer eV : v) {
+            for (Integer eW : w) {
                 int currentDist = length(eV, eW);
                 if (currentDist > 0 && (dist < 0 || currentDist < dist))
                     dist = currentDist;
@@ -82,11 +86,12 @@ public class SAP {
         return dist;
     }
 
-    // a common ancestor that participates in shortest ancestral path; -1 if no such path
-    public int ancestor(Iterable<Integer> v, Iterable<Integer> w) throws IndexOutOfBoundsException {
+    // a common ancestor that participates in shortest ancestral path; -1 if no
+    // such path
+    public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
         int dist = -1, anc = -1;
-        for (int eV : v) {
-            for (int eW : w) {
+        for (Integer eV : v) {
+            for (Integer eW : w) {
                 int currentDist = length(eV, eW);
                 if (currentDist > 0 && (dist < 0 || currentDist < dist)) {
                     dist = currentDist;
@@ -97,29 +102,16 @@ public class SAP {
         return anc;
     }
 
-    // public static void main(String[] args) {
-    //     In in = new In(args[0]);
-    //     Digraph G = new Digraph(in);
-    //     SAP sap = new SAP(G);
-    //     int v = Integer.parseInt(args[1]);
-    //     int w = Integer.parseInt(args[2]);
-    //     int length = sap.length(new int[] { v }, new int[] { w });
-    //     int ancestor = sap.ancestor(new int[] { v }, new int[] { w });
-
-    //     StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
-    // }
-
-    // do unit testing of this class
+    // for unit testing of this class (such as the one below)
     public static void main(String[] args) {
         In in = new In(args[0]);
-        Digraph G = new Digraph(in);
-        SAP sap = new SAP(G);
+        Digraph graph = new Digraph(in);
+        SAP sap = new SAP(graph);
         while (!StdIn.isEmpty()) {
             int v = StdIn.readInt();
             int w = StdIn.readInt();
-            int length   = sap.length(v, w);
+            int length = sap.length(v, w);
             int ancestor = sap.ancestor(v, w);
-
             StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
         }
     }

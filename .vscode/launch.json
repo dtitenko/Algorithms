@@ -5,9 +5,9 @@
             "name": "Debug (Launch)",
             "type": "java",
             "request": "launch",
-            "mainClass": "week1.SAP",
+            "mainClass": "SAP",
             "sourcePaths": [
-                "libs"
+                "src"
             ],
             "args": "test-data\\digraph1.txt 9 12"
         }
