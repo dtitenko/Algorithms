@@ -2,6 +2,7 @@ package src;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class WordNet {
         return _reverseDict.get(id);
     }
 
-    private void readSynsets(String synsets) {
+    private void readSynsets(String synsets) throws NumberFormatException, IOException {
         BufferedReader in = new BufferedReader(new FileReader(synsets));
         String line = null;
         _v = 0;
@@ -80,7 +81,7 @@ public class WordNet {
         in.close();
     }
 
-    private Digraph readHypernyms(String hypernyms) {
+    private Digraph readHypernyms(String hypernyms) throws NumberFormatException, IOException {
         Digraph graph = new Digraph(_v + 1);
         BufferedReader in = new BufferedReader(new FileReader(hypernyms));
         String line = null;
@@ -91,6 +92,7 @@ public class WordNet {
                 graph.addEdge(v, Integer.parseInt(items[i]));
         }
         in.close();
+        return graph;
     }
 
     private boolean dfs(int v, Digraph G, Map<Integer, Boolean> visit, Stack<Integer> S) {

@@ -1,5 +1,7 @@
 package src;
 
+import java.io.IOException;
+
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
@@ -31,7 +33,7 @@ public class Outcast {
     }
 
     // see test client below
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NullPointerException, IllegalArgumentException, IOException {
         WordNet wordnet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordnet);
         for (int t = 2; t < args.length; t++) {
