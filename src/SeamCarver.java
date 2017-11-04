@@ -6,10 +6,17 @@ import java.awt.Color;
 
 public class SeamCarver {
     private Picture _picture;
+    private double[][] _energy;
 
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
-        this._picture = picture;
+        _picture = picture;
+        _energy = new double[_picture.height()][_picture.width()];
+        for (int j = 0; j < _picture.height(); j++) {
+            for (int i = 0; i < _picture.width(); i++) {
+                _energy[j][i] = _getEnergy(i, j);
+            }
+        }
     }
 
     // current picture
@@ -37,16 +44,7 @@ public class SeamCarver {
             return 1000;
         }
 
-        Color colorX1 = _picture.get(x + 1, y);
-        Color colorX2 = _picture.get(x - 1, y);
-        Color colorY1 = _picture.get(x, y + 1);
-        Color colorY2 = _picture.get(x, y - 1);
-
-        return Math.sqrt(Math.pow(colorX1.getRed() - colorX2.getRed(), 2)
-                + Math.pow(colorX1.getGreen() - colorX2.getGreen(), 2)
-                + Math.pow(colorX1.getBlue() - colorX2.getBlue(), 2) + Math.pow(colorY1.getRed() - colorY2.getRed(), 2)
-                + Math.pow(colorY1.getGreen() - colorY2.getGreen(), 2)
-                + Math.pow(colorY1.getBlue() - colorY2.getBlue(), 2));
+        return _energy[y][x];
     }
 
     // sequence of indices for horizontal seam
@@ -62,23 +60,23 @@ public class SeamCarver {
         adj[vertexCount - 1] = new Bag<DirectedEdge>();
         // adj[vertexCount - 1] = new Bag<DirectedEdge>();
         for (int x = 0; x < this.width(); x++) {
-            adj[0].add(new DirectedEdge(0, x + 1, 1000.0));
+            adj[0].add(new DirectedEdge(0, x + 1, 1000.0 + x));
             int bottomRow = (this.height() - 1) * this.width() + 1;
             adj[bottomRow + x] = new Bag<DirectedEdge>();
-            adj[bottomRow + x].add(new DirectedEdge(bottomRow + x, vertexCount - 1, 1000.0));
+            adj[bottomRow + x].add(new DirectedEdge(bottomRow + x, vertexCount - 1, 1000.0 + x));
         }
 
-        for (int x = 0; x < this.width(); x++) {
-            for (int y = 0; y < this.height() - 1; y++) {
+        for (int y = 0; y < this.height() - 1; y++) {
+            for (int x = 0; x < this.width(); x++) {
                 int vertexIndex = y * this.width() + x + 1;
                 int baseTo = (y + 1) * this.width() + 1;
                 adj[vertexIndex] = new Bag<DirectedEdge>();
                 if (x > 0) {
-                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x - 1, energy(x - 1, y + 1)));
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x - 1, energy(x - 1, y + 1) + x));
                 }
-                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x, energy(x, y + 1)));
+                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x, energy(x, y + 1) + x));
                 if (x < this.width() - 1) {
-                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x + 1, energy(x + 1, y + 1)));
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x + 1, energy(x + 1, y + 1) + x));
                 }
             }
         }
@@ -138,6 +136,27 @@ public class SeamCarver {
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+    }
+
+    private double _getEnergy(int x, int y) {
+        if (x < 0 || x >= _picture.width() || y < 0 || y >= _picture.height()) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        if (x == 0 || y == 0 || x == _picture.width() - 1 || y == _picture.height() - 1) {
+            return 1000;
+        }
+
+        Color colorX1 = _picture.get(x + 1, y);
+        Color colorX2 = _picture.get(x - 1, y);
+        Color colorY1 = _picture.get(x, y + 1);
+        Color colorY2 = _picture.get(x, y - 1);
+
+        return Math.sqrt(Math.pow(colorX1.getRed() - colorX2.getRed(), 2)
+                + Math.pow(colorX1.getGreen() - colorX2.getGreen(), 2)
+                + Math.pow(colorX1.getBlue() - colorX2.getBlue(), 2) + Math.pow(colorY1.getRed() - colorY2.getRed(), 2)
+                + Math.pow(colorY1.getGreen() - colorY2.getGreen(), 2)
+                + Math.pow(colorY1.getBlue() - colorY2.getBlue(), 2));
     }
 
     private static final boolean HORIZONTAL = true;
