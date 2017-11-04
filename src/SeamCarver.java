@@ -132,10 +132,48 @@ public class SeamCarver {
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
+        if (seam.length != _picture.width()) {
+            throw new IllegalArgumentException();
+        }
+
+        Picture cPic = new Picture(_picture.width(), _picture.height() - 1);
+        for (int i = 0; i < _picture.width(); i++) {
+            for (int j = 0; j < _picture.height(); j++) {
+                if (j == seam[i]) {
+                    continue;
+                }
+                int pt = j;
+                if (pt > seam[i]) {
+                    pt--;
+                }
+                cPic.set(i, pt, this._picture.get(i, j));
+            }
+        }
+
+        this._picture = cPic;
     }
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+        if (seam.length != _picture.height()) {
+            throw new IllegalArgumentException();
+        }
+
+        Picture newPicture = new Picture(_picture.width() - 1, _picture.height());
+        for (int j = 0; j < _picture.height(); j++) {
+            for (int i = 0; i < _picture.width(); i++) {
+                if (i == seam[j]) {
+                    continue;
+                }
+                int pt = i;
+                if (pt > seam[j]) {
+                    pt--;
+                }
+                newPicture.set(pt, j, _picture.get(i, j));
+            }
+        }
+
+        this._picture = newPicture;
     }
 
     private double _getEnergy(int x, int y) {
