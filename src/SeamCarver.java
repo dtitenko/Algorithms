@@ -49,7 +49,46 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        throw new UnsupportedOperationException();
+        int vertexCount = this.height() * this.width() + 2;
+        int fromIndex = vertexCount - 2;
+        int toIndex = vertexCount - 1;
+        Bag<DirectedEdge>[] adj = (Bag<DirectedEdge>[]) new Bag[vertexCount];
+        adj[fromIndex] = new Bag<DirectedEdge>();
+        adj[toIndex] = new Bag<DirectedEdge>();
+        // adj[vertexCount - 1] = new Bag<DirectedEdge>();
+        for (int y = 0; y < this.height(); y++) {
+            adj[fromIndex].add(new DirectedEdge(fromIndex, y, 1000.0 + y));
+            int rightColumn = (this.width() - 1) * this.height();
+            adj[rightColumn + y] = new Bag<DirectedEdge>();
+            adj[rightColumn + y].add(new DirectedEdge(rightColumn + y, toIndex, 1000.0 + y));
+        }
+
+        for (int x = 0; x < this.width() - 1; x++) {
+            for (int y = 0; y < this.height(); y++) {
+                int vertexIndex = x * this.height() + y;
+                int baseTo = (x + 1) * this.height();
+                adj[vertexIndex] = new Bag<DirectedEdge>();
+                if (y > 0) {
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y - 1, energy(x + 1, y - 1) + y));
+                }
+                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y, energy(x + 1, y) + y));
+                if (y < this.height() - 1) {
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y + 1, energy(x + 1, y + 1) + y));
+                }
+            }
+        }
+
+        Stack<DirectedEdge> path = dijkstra(adj, fromIndex, toIndex);
+        int[] intPath = new int[path.size() - 1];
+        for (int p = 0; p < intPath.length; p++) {
+            // reverse the pseudo index
+            // int vertexIndex = x * this.height() + y;
+            int vertexIndex = path.pop().to();
+            int x = vertexIndex / this.height();
+            int y = vertexIndex - x * this.height();
+            intPath[p] = y;
+        }
+        return intPath;
     }
 
     // sequence of indices for vertical seam
@@ -81,7 +120,7 @@ public class SeamCarver {
             }
         }
 
-        Stack<DirectedEdge> path = dijkstra(adj);
+        Stack<DirectedEdge> path = dijkstra(adj, 0, adj.length - 1);
         int[] intPath = new int[path.size() - 1];
         for (int p = 0; p < intPath.length; p++) {
             // reverse the pseudo index
@@ -92,42 +131,6 @@ public class SeamCarver {
             intPath[p] = x;
         }
         return intPath;
-    }
-
-    private final Stack<DirectedEdge> dijkstra(Bag<DirectedEdge>[] adj) {
-        double[] distTo = new double[adj.length];
-        for (int v = 0; v < adj.length; v++) {
-            distTo[v] = Double.POSITIVE_INFINITY;
-        }
-        distTo[0] = 0.0;
-        DirectedEdge[] edgeTo = new DirectedEdge[adj.length];
-        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(adj.length);
-        pq.insert(0, 0.0);
-        while (!pq.isEmpty()) {
-            int v = pq.delMin();
-            for (DirectedEdge e : adj[v]) {
-                relax(e, distTo, edgeTo, pq);
-            }
-        }
-
-        Stack<DirectedEdge> path = new Stack<DirectedEdge>();
-        for (DirectedEdge e = edgeTo[adj.length - 1]; e != null; e = edgeTo[e.from()]) {
-            path.push(e);
-        }
-        return path;
-    }
-
-    private final void relax(DirectedEdge e, double[] distTo, DirectedEdge[] edgeTo, IndexMinPQ<Double> pq) {
-        int v = e.from(), w = e.to();
-        if (distTo[w] > distTo[v] + e.weight()) {
-            distTo[w] = distTo[v] + e.weight();
-            edgeTo[w] = e;
-            if (pq.contains(w)) {
-                pq.decreaseKey(w, distTo[w]);
-            } else {
-                pq.insert(w, distTo[w]);
-            }
-        }
     }
 
     // remove horizontal seam from current picture
@@ -174,6 +177,42 @@ public class SeamCarver {
         }
 
         this._picture = newPicture;
+    }
+
+    private final Stack<DirectedEdge> dijkstra(Bag<DirectedEdge>[] adj, int from, int to) {
+        double[] distTo = new double[adj.length];
+        for (int v = 0; v < adj.length; v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[from] = 0.0;
+        DirectedEdge[] edgeTo = new DirectedEdge[adj.length];
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(adj.length);
+        pq.insert(from, distTo[from]);
+        while (!pq.isEmpty()) {
+            int v = pq.delMin();
+            for (DirectedEdge e : adj[v]) {
+                relax(e, distTo, edgeTo, pq);
+            }
+        }
+
+        Stack<DirectedEdge> path = new Stack<DirectedEdge>();
+        for (DirectedEdge e = edgeTo[to]; e != null; e = edgeTo[e.from()]) {
+            path.push(e);
+        }
+        return path;
+    }
+
+    private final void relax(DirectedEdge e, double[] distTo, DirectedEdge[] edgeTo, IndexMinPQ<Double> pq) {
+        int v = e.from(), w = e.to();
+        if (distTo[w] > distTo[v] + e.weight()) {
+            distTo[w] = distTo[v] + e.weight();
+            edgeTo[w] = e;
+            if (pq.contains(w)) {
+                pq.decreaseKey(w, distTo[w]);
+            } else {
+                pq.insert(w, distTo[w]);
+            }
+        }
     }
 
     private double _getEnergy(int x, int y) {
@@ -238,12 +277,11 @@ public class SeamCarver {
         StdOut.println("}");
         printSeam(carver, verticalSeam, VERTICAL);
 
-        // StdOut.printf("Horizontal seam: { ");
-        // int[] horizontalSeam = carver.findHorizontalSeam();
-        // for (int y : horizontalSeam)
-        //     StdOut.print(y + " ");
-        // StdOut.println("}");
-        // printSeam(carver, horizontalSeam, HORIZONTAL);
-
+        StdOut.printf("Horizontal seam: { ");
+        int[] horizontalSeam = carver.findHorizontalSeam();
+        for (int y : horizontalSeam)
+            StdOut.print(y + " ");
+        StdOut.println("}");
+        printSeam(carver, horizontalSeam, HORIZONTAL);
     }
 }
