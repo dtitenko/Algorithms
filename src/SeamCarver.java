@@ -52,10 +52,11 @@ public class SeamCarver {
         int vertexCount = this.height() * this.width() + 2;
         int fromIndex = vertexCount - 2;
         int toIndex = vertexCount - 1;
+
         Bag<DirectedEdge>[] adj = (Bag<DirectedEdge>[]) new Bag[vertexCount];
         adj[fromIndex] = new Bag<DirectedEdge>();
         adj[toIndex] = new Bag<DirectedEdge>();
-        // adj[vertexCount - 1] = new Bag<DirectedEdge>();
+
         for (int y = 0; y < this.height(); y++) {
             adj[fromIndex].add(new DirectedEdge(fromIndex, y, 1000.0 + y));
             int rightColumn = (this.width() - 1) * this.height();
@@ -94,21 +95,24 @@ public class SeamCarver {
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
         int vertexCount = this.height() * this.width() + 2;
+        int fromIndex = vertexCount - 2;
+        int toIndex = vertexCount - 1;
+
         Bag<DirectedEdge>[] adj = (Bag<DirectedEdge>[]) new Bag[vertexCount];
-        adj[0] = new Bag<DirectedEdge>();
-        adj[vertexCount - 1] = new Bag<DirectedEdge>();
-        // adj[vertexCount - 1] = new Bag<DirectedEdge>();
+        adj[fromIndex] = new Bag<DirectedEdge>();
+        adj[toIndex] = new Bag<DirectedEdge>();
+
         for (int x = 0; x < this.width(); x++) {
-            adj[0].add(new DirectedEdge(0, x + 1, 1000.0 + x));
-            int bottomRow = (this.height() - 1) * this.width() + 1;
+            adj[fromIndex].add(new DirectedEdge(fromIndex, x, 1000.0 + x));
+            int bottomRow = (this.height() - 1) * this.width();
             adj[bottomRow + x] = new Bag<DirectedEdge>();
-            adj[bottomRow + x].add(new DirectedEdge(bottomRow + x, vertexCount - 1, 1000.0 + x));
+            adj[bottomRow + x].add(new DirectedEdge(bottomRow + x, toIndex, 1000.0 + x));
         }
 
         for (int y = 0; y < this.height() - 1; y++) {
             for (int x = 0; x < this.width(); x++) {
-                int vertexIndex = y * this.width() + x + 1;
-                int baseTo = (y + 1) * this.width() + 1;
+                int vertexIndex = y * this.width() + x;
+                int baseTo = (y + 1) * this.width();
                 adj[vertexIndex] = new Bag<DirectedEdge>();
                 if (x > 0) {
                     adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x - 1, energy(x - 1, y + 1) + x));
@@ -120,12 +124,12 @@ public class SeamCarver {
             }
         }
 
-        Stack<DirectedEdge> path = dijkstra(adj, 0, adj.length - 1);
+        Stack<DirectedEdge> path = dijkstra(adj, fromIndex, toIndex);
         int[] intPath = new int[path.size() - 1];
         for (int p = 0; p < intPath.length; p++) {
             // reverse the pseudo index
             // int vertexIndex = y * this.width() + x + 1;
-            int vertexIndex = path.pop().to() - 1;
+            int vertexIndex = path.pop().to();
             int y = vertexIndex / this.width();
             int x = vertexIndex - y * this.width();
             intPath[p] = x;
