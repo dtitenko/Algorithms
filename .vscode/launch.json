@@ -5,11 +5,11 @@
             "name": "Debug (Launch)",
             "type": "java",
             "request": "launch",
-            "mainClass": "SAP",
+            "mainClass": "SeamCarver",
             "sourcePaths": [
                 "src"
             ],
-            "args": "test-data\\digraph1.txt 9 12"
+            "args": "test-data\\seam\\diagonals.png"
         }
     ]
 }
