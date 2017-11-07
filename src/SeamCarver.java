@@ -59,10 +59,10 @@ public class SeamCarver {
         adj[toIndex] = new BagDirectedEdge();
 
         for (int y = 0; y < this.height(); y++) {
-            adj[fromIndex].add(new DirectedEdge(fromIndex, y, 1000.0 + y * .01));
+            adj[fromIndex].add(new DirectedEdge(fromIndex, y, 1000.0));
             int rightColumn = (this.width() - 1) * this.height();
             adj[rightColumn + y] = new BagDirectedEdge();
-            adj[rightColumn + y].add(new DirectedEdge(rightColumn + y, toIndex, 1000.0 + y * .01));
+            adj[rightColumn + y].add(new DirectedEdge(rightColumn + y, toIndex, 1000.0));
         }
 
         for (int x = 0; x < this.width() - 1; x++) {
@@ -71,11 +71,11 @@ public class SeamCarver {
                 int baseTo = (x + 1) * this.height();
                 adj[vertexIndex] = new BagDirectedEdge();
                 if (y > 0) {
-                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y - 1, energy(x + 1, y - 1) + y * .01));
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y - 1, energy(x + 1, y - 1)));
                 }
-                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y, energy(x + 1, y) + y * .01));
+                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y, energy(x + 1, y)));
                 if (y < this.height() - 1) {
-                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y + 1, energy(x + 1, y + 1) + y * .01));
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + y + 1, energy(x + 1, y + 1)));
                 }
             }
         }
@@ -102,10 +102,10 @@ public class SeamCarver {
         adj[toIndex] = new BagDirectedEdge();
 
         for (int x = 0; x < this.width(); x++) {
-            adj[fromIndex].add(new DirectedEdge(fromIndex, x, 1000.0 + x * .01));
+            adj[fromIndex].add(new DirectedEdge(fromIndex, x, 1000.0));
             int bottomRow = (this.height() - 1) * this.width();
             adj[bottomRow + x] = new BagDirectedEdge();
-            adj[bottomRow + x].add(new DirectedEdge(bottomRow + x, toIndex, 1000.0 + x * .01));
+            adj[bottomRow + x].add(new DirectedEdge(bottomRow + x, toIndex, 1000.0));
         }
 
         for (int y = 0; y < this.height() - 1; y++) {
@@ -114,11 +114,11 @@ public class SeamCarver {
                 int baseTo = (y + 1) * this.width();
                 adj[vertexIndex] = new BagDirectedEdge();
                 if (x > 0) {
-                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x - 1, energy(x - 1, y + 1) + x * .01));
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x - 1, energy(x - 1, y + 1)));
                 }
-                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x, energy(x, y + 1) + x * .01));
+                adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x, energy(x, y + 1)));
                 if (x < this.width() - 1) {
-                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x + 1, energy(x + 1, y + 1) + x * .01));
+                    adj[vertexIndex].add(new DirectedEdge(vertexIndex, baseTo + x + 1, energy(x + 1, y + 1)));
                 }
             }
         }
