@@ -5,11 +5,11 @@
             "name": "Debug (Launch)",
             "type": "java",
             "request": "launch",
-            "mainClass": "SeamCarver",
+            "mainClass": "BaseballElimination",
             "sourcePaths": [
                 "src"
             ],
-            "args": "test-data\\seam\\diagonals.png"
+            "args": "test-data\\baseball\\teams4.txt"
         }
     ]
 }
