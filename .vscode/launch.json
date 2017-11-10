@@ -9,7 +9,7 @@
             "sourcePaths": [
                 "src"
             ],
-            "args": "test-data\\baseball\\teams4.txt"
+            "args": "test-data\\baseball\\teams5.txt"
         }
     ]
 }
