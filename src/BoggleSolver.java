@@ -45,7 +45,7 @@ public class BoggleSolver {
             if (i < 0 || j < 0 || i >= _board.cols() || j >= _board.rows() || _visited[j][i]) {
                 return;
             }
-            char letter = _board.getLetter(i, j);
+            char letter = _board.getLetter(j, i);
             String word;
             if (letter == 'Q') {
                 word = prefix + "QU";
