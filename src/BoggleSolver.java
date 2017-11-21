@@ -1,17 +1,17 @@
-import java.util.Collection;
 import java.util.HashSet;
 
-import edu.princeton.cs.algs4.TrieST;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 public class BoggleSolver {
-    private TrieST<Integer> _dictionary = new TrieST<Integer>();
+    private BoggleTrie _dictionary = new BoggleTrie();
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
         for (int i = 0; i < dictionary.length; i++) {
             String key = dictionary[i];
-            _dictionary.put(key, i);
+            _dictionary.put(key);
         }
     }
 
@@ -23,70 +23,51 @@ public class BoggleSolver {
 
     private class WordSearcher {
         private BoggleBoard _board;
-        private HashSet<String> queue;
+        private HashSet<String> _words;
+        private boolean[][] _visited;
 
         public WordSearcher(BoggleBoard board) {
             _board = board;
-            queue = new HashSet<String>();
+            _words = new HashSet<String>();
+            _visited = new boolean[_board.rows()][_board.cols()];
         }
 
         public Iterable<String> getWords() {
             for (int i = 0; i < _board.cols(); i++) {
                 for (int j = 0; j < _board.rows(); j++) {
-                    searchWords(i, j, "", new boolean[_board.rows()][_board.cols()]);
+                    searchWords(i, j, "");
                 }
             }
-            return queue;
+            return _words;
         }
 
-        private void searchWords(int i, int j, String prefix, boolean[][] _visited) {
+        private void searchWords(int i, int j, String prefix) {
             if (i < 0 || j < 0 || i >= _board.cols() || j >= _board.rows() || _visited[j][i]) {
                 return;
             }
             char letter = _board.getLetter(i, j);
-            String word = prefix + letter;
+            String word;
             if (letter == 'Q') {
-            	word += 'U';
+                word = prefix + "QU";
+            } else {
+                word = prefix + letter;
             }
-            Integer key = _dictionary.get(word);
-            if (key != null && word.length() > 2) {
-                queue.add(word);
+            boolean contains = _dictionary.contains(word);
+            if (contains && word.length() > 2) {
+                _words.add(word);
             }
-            int futureCount = size(_dictionary.keysWithPrefix(word));
-            if (futureCount == 1 && key != null || futureCount == 0) {
+            if (!_dictionary.hasWordsWithPrefix(word)) {
                 return;
             }
-            boolean[][] newVisited = cloneArray(_visited);
-            newVisited[j][i] = true;
-            searchWords(i - 1, j - 1, word, newVisited);
-            searchWords(i - 1, j, word, newVisited);
-            searchWords(i - 1, j + 1, word, newVisited);
-            searchWords(i, j - 1, word, newVisited);
-            searchWords(i, j + 1, word, newVisited);
-            searchWords(i + 1, j - 1, word, newVisited);
-            searchWords(i + 1, j, word, newVisited);
-            searchWords(i + 1, j + 1, word, newVisited);
-        }
-        
-        public boolean[][] cloneArray(boolean[][] src) {
-            int length = src.length;
-            boolean[][] target = new boolean[length][src[0].length];
-            for (int i = 0; i < length; i++) {
-                System.arraycopy(src[i], 0, target[i], 0, src[i].length);
+
+            _visited[j][i] = true;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    searchWords(i + x, j + y, word);
+                }
             }
-            return target;
+            _visited[j][i] = false;
         }
-
-        private int size(Iterable<?> it) {
-            if (it instanceof Collection)
-              return ((Collection<?>)it).size();
-
-            // else iterate
-
-            int i = 0;
-            for (Object obj : it) i++;
-            return i;
-          }
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
