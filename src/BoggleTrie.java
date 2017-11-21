@@ -3,9 +3,17 @@ public class BoggleTrie {
 
     private Node root; // root of trie
 
-    private static class Node {
-        private boolean val;
-        private Node[] next = new Node[R];
+    public class Node {
+        public boolean val;
+        public Node[] next = new Node[R];
+        public boolean hasChilds;
+        public Node next(char c) {
+            return next[index(c)];
+        }
+    }
+
+    public Node root() {
+        return root;
     }
 
     public boolean contains(String key) {
@@ -42,20 +50,8 @@ public class BoggleTrie {
         }
         char c = key.charAt(d);
         x.next[index(c)] = put(x.next[index(c)], key, d + 1);
+        x.hasChilds = true;
         return x;
-    }
-
-    public boolean hasWordsWithPrefix(String prefix) {
-        Node x = get(root, prefix, 0);
-        if (x == null) {
-            return false;
-        }
-        for (char c = 0; c < R; c++) {
-            if (x.next[c] != null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private int index(char c) {

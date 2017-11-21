@@ -35,35 +35,36 @@ public class BoggleSolver {
         public Iterable<String> getWords() {
             for (int i = 0; i < _board.cols(); i++) {
                 for (int j = 0; j < _board.rows(); j++) {
-                    searchWords(i, j, "");
+                    searchWords(i, j, "", _dictionary.root());
                 }
             }
             return _words;
         }
 
-        private void searchWords(int i, int j, String prefix) {
+        private void searchWords(int i, int j, String prefix, BoggleTrie.Node node) {
             if (i < 0 || j < 0 || i >= _board.cols() || j >= _board.rows() || _visited[j][i]) {
                 return;
             }
             char letter = _board.getLetter(j, i);
-            String word;
-            if (letter == 'Q') {
-                word = prefix + "QU";
-            } else {
-                word = prefix + letter;
+            BoggleTrie.Node nextNode = node.next(letter);
+            if (nextNode != null && letter == 'Q') {
+                nextNode = nextNode.next('U');
             }
-            boolean contains = _dictionary.contains(word);
-            if (contains && word.length() > 2) {
+            if (nextNode == null) {
+                return;
+            }
+            String word = letter == 'Q' ? prefix + "QU" : prefix + letter;
+            if (nextNode.val && word.length() > 2) {
                 _words.add(word);
             }
-            if (!_dictionary.hasWordsWithPrefix(word)) {
+            if (!nextNode.hasChilds) {
                 return;
             }
 
             _visited[j][i] = true;
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
-                    searchWords(i + x, j + y, word);
+                    searchWords(i + x, j + y, word, nextNode);
                 }
             }
             _visited[j][i] = false;
