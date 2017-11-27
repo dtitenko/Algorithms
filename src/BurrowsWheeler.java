@@ -1,11 +1,13 @@
 import java.util.Arrays;
 import java.util.Comparator;
+import edu.princeton.cs.algs4.BinaryStdIn;
+import edu.princeton.cs.algs4.BinaryStdOut;
 
 public class BurrowsWheeler {
 
     // apply Burrows-Wheeler encoding, reading from standard input and writing
     // to standard output
-    public static void encode() {
+    public static void transform() {
         StringBuilder str = new StringBuilder();
         while (!BinaryStdIn.isEmpty())
             str = str.append(BinaryStdIn.readChar());
@@ -26,7 +28,7 @@ public class BurrowsWheeler {
 
     // apply Burrows-Wheeler decoding, reading from standard input and writing
     // to standard output
-    public static void decode() {
+    public static void inverseTransform() {
         StringBuilder str = new StringBuilder();
         int s = BinaryStdIn.readInt(32);
         while (!BinaryStdIn.isEmpty()) {
@@ -79,9 +81,9 @@ public class BurrowsWheeler {
     // if args[0] is '+', apply Burrows-Wheeler decoding
     public static void main(String[] args) {
         if (args[0].equals("-")) {
-            encode();
+            transform();
         } else if (args[0].equals("+")) {
-            decode();
+            inverseTransform();
         }
     }
 }

@@ -1,3 +1,6 @@
+import edu.princeton.cs.algs4.BinaryStdIn;
+import edu.princeton.cs.algs4.BinaryStdOut;
+
 public class MoveToFront {
     private static final int R = 256;
 
